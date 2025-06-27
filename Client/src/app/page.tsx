@@ -10,10 +10,26 @@ interface Disaster {
   createdAt: string;
 }
 
+interface ResourceAllocation {
+  blankets: number;
+  food: number;
+  medical: number;
+  rescuePersonnel: number;
+  shelter: number;
+  water: number;
+}
+
+interface DepartmentAllocation {
+  [departmentName: string]: ResourceAllocation;
+}
+
 export default function Home() {
   const [disasters, setDisasters] = useState<Disaster[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [allocationData, setAllocationData] = useState<DepartmentAllocation | null>(null);
+  const [selectedDisasterId, setSelectedDisasterId] = useState<string | null>(null);
+  const [allocationLoading, setAllocationLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -51,34 +67,80 @@ export default function Home() {
   };
 
   const getDisasterDataFromDB = async ({ id }: { id: string }) => {
-    const formData = {
-      id: id,
-    };
+    setAllocationLoading(true);
+    setSelectedDisasterId(id);
+    
+    try {
+      const formData = {
+        id: id,
+      };
 
-    const resourceDataresponse = await fetch("/api/getResourceData", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
-
-    const resourceDataresponseData = await resourceDataresponse.json();
-    console.log(resourceDataresponseData.data);
-
-    const departmentResourceAllocation = await fetch(
-      "http://localhost:5000/api/resourceDistrubution",
-      {
+      const resourceDataresponse = await fetch("/api/getResourceData", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(resourceDataresponseData.data[0]), // Send the first object from the array
-      }
-    );
+        body: JSON.stringify(formData),
+      });
 
-    const departmentResourceAllocationResponse = await departmentResourceAllocation.json();
-    console.log(departmentResourceAllocationResponse.data.departments_allocation);
+      const resourceDataresponseData = await resourceDataresponse.json();
+      console.log(resourceDataresponseData.data);
+
+      const departmentResourceAllocation = await fetch(
+        "http://localhost:5000/api/resourceDistrubution",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(resourceDataresponseData.data[0]),
+        }
+      );
+
+      const departmentResourceAllocationResponse = await departmentResourceAllocation.json();
+      console.log(departmentResourceAllocationResponse);
+      
+      // Store the allocation data in state
+      setAllocationData(departmentResourceAllocationResponse.data.departments_allocation);
+    } catch (error) {
+      console.error("Error allocating resources:", error);
+      setError("Failed to allocate resources");
+    } finally {
+      setAllocationLoading(false);
+    }
+  };
+
+  const closeAllocationModal = () => {
+    setAllocationData(null);
+    setSelectedDisasterId(null);
+  };
+
+  const getResourceIcon = (resourceType: string) => {
+    switch (resourceType) {
+      case "medical":
+        return "🏥";
+      case "rescuePersonnel":
+        return "👨‍🚒";
+      case "water":
+        return "💧";
+      case "food":
+        return "🍞";
+      case "blankets":
+        return "🛏️";
+      case "shelter":
+        return "🏠";
+      default:
+        return "📦";
+    }
+  };
+
+  const formatResourceName = (resourceType: string) => {
+    switch (resourceType) {
+      case "rescuePersonnel":
+        return "Rescue Personnel";
+      default:
+        return resourceType.charAt(0).toUpperCase() + resourceType.slice(1);
+    }
   };
 
   const getSeverityIcon = (severity: string) => {
@@ -258,20 +320,123 @@ export default function Home() {
 
                   <div className="flex space-x-3">
                     <button
-                      className="flex-1 bg-green-600 text-black px-4 py-2 rounded hover:bg-green-700 transition-colors duration-200 text-sm font-bold"
-                      onClick={() =>
-                        getDisasterDataFromDB({ id: disaster._id })
-                      }
+                      className="flex-1 bg-green-600 text-black px-4 py-2 rounded hover:bg-green-700 transition-colors duration-200 text-sm font-bold disabled:opacity-50"
+                      onClick={() => getDisasterDataFromDB({ id: disaster._id })}
+                      disabled={allocationLoading && selectedDisasterId === disaster._id}
                     >
-                      Allocate Resources
+                      {allocationLoading && selectedDisasterId === disaster._id ? (
+                        <div className="flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black mr-2"></div>
+                          Allocating...
+                        </div>
+                      ) : (
+                        "Allocate Resources"
+                      )}
                     </button>
                     <button className="flex-1 bg-gray-800 text-green-400 px-4 py-2 rounded border border-green-600 hover:bg-green-600 hover:text-black transition-colors duration-200 text-sm font-bold">
-                      MANAGE
+                      Open Chat
                     </button>
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Resource Allocation Modal */}
+        {allocationData && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+            <div className="bg-gray-900 border border-green-600 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-green-400">
+                    {">"} RESOURCE ALLOCATION REPORT
+                  </h2>
+                  <button
+                    onClick={closeAllocationModal}
+                    className="text-green-400 hover:text-green-300 text-2xl font-bold"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  {Object.entries(allocationData).map(([department, resources]) => (
+                    <div key={department} className="bg-gray-800 border border-green-700 rounded-lg p-4">
+                      <h3 className="text-lg font-bold text-green-300 mb-4 flex items-center">
+                        <span className="text-green-600 mr-2">{">"}</span>
+                        {department.toUpperCase()}
+                      </h3>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        {Object.entries(resources).map(([resourceType, quantity]) => (
+                          <div
+                            key={resourceType}
+                            className={`bg-gray-700 border rounded p-3 text-center ${
+                              quantity > 0 
+                                ? 'border-green-600 bg-green-900 bg-opacity-20' 
+                                : 'border-gray-600'
+                            }`}
+                          >
+                            <div className="text-2xl mb-1">
+                              {getResourceIcon(resourceType)}
+                            </div>
+                            <div className="text-sm text-green-300 mb-1">
+                              {formatResourceName(resourceType)}
+                            </div>
+                            <div className={`text-lg font-bold ${
+                              quantity > 0 ? 'text-green-400' : 'text-gray-400'
+                            }`}>
+                              {quantity}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Summary for each department */}
+                      <div className="mt-3 text-sm text-green-300">
+                        <span className="text-green-600">// </span>
+                        Total Resources: {Object.values(resources).reduce((sum, qty) => sum + qty, 0)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Overall Summary */}
+                <div className="mt-6 bg-gray-800 border border-green-600 rounded-lg p-4">
+                  <h3 className="text-lg font-bold text-green-400 mb-3">
+                    {">"} ALLOCATION SUMMARY
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div className="text-green-300">
+                      <span className="text-green-600">Departments: </span>
+                      {Object.keys(allocationData).length}
+                    </div>
+                    <div className="text-green-300">
+                      <span className="text-green-600">Total Personnel: </span>
+                      {Object.values(allocationData).reduce((sum, dept) => sum + dept.rescuePersonnel, 0)}
+                    </div>
+                    <div className="text-green-300">
+                      <span className="text-green-600">Medical Supplies: </span>
+                      {Object.values(allocationData).reduce((sum, dept) => sum + dept.medical, 0)}
+                    </div>
+                    <div className="text-green-300">
+                      <span className="text-green-600">Timestamp: </span>
+                      {new Date().toLocaleTimeString()}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex justify-end">
+                  <button
+                    onClick={closeAllocationModal}
+                    className="px-6 py-2 bg-green-600 text-black font-bold rounded hover:bg-green-700 transition-colors duration-200"
+                  >
+                    CLOSE REPORT
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
