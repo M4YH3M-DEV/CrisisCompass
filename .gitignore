@@ -1,0 +1,77 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Client (Next.js) dependencies
+Client/node_modules/
+Client/.pnp
+Client/.pnp.*
+Client/.yarn/*
+!Client/.yarn/patches
+!Client/.yarn/plugins
+!Client/.yarn/releases
+!Client/.yarn/versions
+
+# Client testing
+Client/coverage/
+
+# Client Next.js
+Client/.next/
+Client/out/
+
+# Client production
+Client/build/
+
+# Client misc
+Client/.DS_Store
+Client/*.pem
+
+# Client debug
+Client/npm-debug.log*
+Client/yarn-debug.log*
+Client/yarn-error.log*
+Client/.pnpm-debug.log*
+
+# Client TypeScript
+Client/*.tsbuildinfo
+Client/next-env.d.ts
+
+# Client Vercel
+Client/.vercel/
+
+# Server (Flask/Python)
+Server/venv/
+Server/__pycache__/
+Server/*.pyc
+Server/*.pyo
+Server/*.pyd
+Server/.Python
+Server/env/
+Server/pip-log.txt
+Server/pip-delete-this-directory.txt
+Server/.tox/
+Server/.coverage
+Server/.coverage.*
+Server/.cache
+Server/nosetests.xml
+Server/coverage.xml
+Server/*.cover
+Server/*.log
+Server/.git
+Server/.mypy_cache
+Server/.pytest_cache
+Server/.hypothesis
+
+# Environment files
+.env*
+Client/.env*
+Server/.env*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
