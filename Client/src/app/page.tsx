@@ -77,8 +77,8 @@ export default function Home() {
       }
     );
 
-    const result = await departmentResourceAllocation.json();
-    console.log(result);
+    const departmentResourceAllocationResponse = await departmentResourceAllocation.json();
+    console.log(departmentResourceAllocationResponse.data.departments_allocation);
   };
 
   const getSeverityIcon = (severity: string) => {

@@ -124,4 +124,5 @@ def predict(magnitude, cdi, mmi, tsunami, net, dmin, gap, depth):
     # Decode the alert prediction back to text
     alert_text = alert_encoder.inverse_transform(new_alert_prediction)[0]
 
+    print(f"Alert type: {alert_text}")
     return alert_text
