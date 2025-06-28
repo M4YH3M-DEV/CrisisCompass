@@ -56,6 +56,7 @@ One of the biggest hurdles during disaster response is siloed communication betw
 - **MongoDB**: Stores disaster events, chat messages, resource data, and department info
  
 ### Machine Learning
+- **Pandas** for data structure
 - **RandomForestClassifier** via Scikit-learn
 - Trained on real-world earthquake data (1995–2023)
  
