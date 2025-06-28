@@ -27,9 +27,21 @@ export default function Home() {
   const [disasters, setDisasters] = useState<Disaster[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [allocationData, setAllocationData] = useState<DepartmentAllocation | null>(null);
-  const [selectedDisasterId, setSelectedDisasterId] = useState<string | null>(null);
+  const [allocationData, setAllocationData] =
+    useState<DepartmentAllocation | null>(null);
+  const [selectedDisasterId, setSelectedDisasterId] = useState<string | null>(
+    null
+  );
   const [allocationLoading, setAllocationLoading] = useState(false);
+
+  // Login state management
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginCredentials, setLoginCredentials] = useState({
+    username: "",
+    password: "",
+  });
+  const [loginLoading, setLoginLoading] = useState(false);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -66,10 +78,11 @@ export default function Home() {
     }
   };
 
+  // Get disaster data from db
   const getDisasterDataFromDB = async ({ id }: { id: string }) => {
     setAllocationLoading(true);
     setSelectedDisasterId(id);
-    
+
     try {
       const formData = {
         id: id,
@@ -97,17 +110,70 @@ export default function Home() {
         }
       );
 
-      const departmentResourceAllocationResponse = await departmentResourceAllocation.json();
+      const departmentResourceAllocationResponse =
+        await departmentResourceAllocation.json();
       console.log(departmentResourceAllocationResponse);
-      
+
       // Store the allocation data in state
-      setAllocationData(departmentResourceAllocationResponse.data.departments_allocation);
+      setAllocationData(
+        departmentResourceAllocationResponse.data.departments_allocation
+      );
     } catch (error) {
       console.error("Error allocating resources:", error);
       setError("Failed to allocate resources");
     } finally {
       setAllocationLoading(false);
     }
+  };
+
+  // Start chatting - now opens login popup
+  const startChatUsingDisasterId = async ({ id }: { id: string }) => {
+    setSelectedDisasterId(id);
+    setShowLoginModal(true);
+  };
+
+  // Handle login form submission
+  const handleDepartmentChatLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/getDepId", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(loginCredentials),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const departmentUserId = data.depId[0].depId;
+
+        // Store both userId and departmentId
+        localStorage.setItem("departmentUserId", loginCredentials.username);
+        localStorage.setItem("departmentId", departmentUserId.toString());
+
+        setLoginCredentials({ username: "", password: "" });
+        router.push(`/chat/${selectedDisasterId}`);
+      } else {
+        setError("Invalid credentials");
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        setError(null);
+      }
+    } catch (error) {
+      setError("Login failed. Please try again.");
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const closeLoginModal = () => {
+    setShowLoginModal(false);
+    setSelectedDisasterId(null);
+    setLoginCredentials({ username: "", password: "" });
+    setError(null);
   };
 
   const closeAllocationModal = () => {
@@ -321,10 +387,15 @@ export default function Home() {
                   <div className="flex space-x-3">
                     <button
                       className="flex-1 bg-green-600 text-black px-4 py-2 rounded hover:bg-green-700 transition-colors duration-200 text-sm font-bold disabled:opacity-50"
-                      onClick={() => getDisasterDataFromDB({ id: disaster._id })}
-                      disabled={allocationLoading && selectedDisasterId === disaster._id}
+                      onClick={() =>
+                        getDisasterDataFromDB({ id: disaster._id })
+                      }
+                      disabled={
+                        allocationLoading && selectedDisasterId === disaster._id
+                      }
                     >
-                      {allocationLoading && selectedDisasterId === disaster._id ? (
+                      {allocationLoading &&
+                      selectedDisasterId === disaster._id ? (
                         <div className="flex items-center justify-center">
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black mr-2"></div>
                           Allocating...
@@ -333,13 +404,121 @@ export default function Home() {
                         "Allocate Resources"
                       )}
                     </button>
-                    <button className="flex-1 bg-gray-800 text-green-400 px-4 py-2 rounded border border-green-600 hover:bg-green-600 hover:text-black transition-colors duration-200 text-sm font-bold">
+                    <button
+                      className="flex-1 bg-gray-800 text-green-400 px-4 py-2 rounded border border-green-600 hover:bg-green-600 hover:text-black transition-colors duration-200 text-sm font-bold"
+                      onClick={() =>
+                        startChatUsingDisasterId({ id: disaster._id })
+                      }
+                    >
                       Open Chat
                     </button>
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Login Modal */}
+        {showLoginModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+            <div className="bg-gray-900 border border-green-600 rounded-lg max-w-md w-full">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-green-400">
+                    {">"} LOGIN REQUIRED
+                  </h2>
+                  <button
+                    onClick={closeLoginModal}
+                    className="text-green-400 hover:text-green-300 text-2xl font-bold"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div className="text-green-300 text-sm mb-6">
+                  // Authentication required to access chat system
+                </div>
+
+                <form
+                  onSubmit={handleDepartmentChatLogin}
+                  className="space-y-4"
+                >
+                  <div>
+                    <label className="block text-green-300 text-sm font-bold mb-2">
+                      USERNAME:
+                    </label>
+                    <input
+                      type="text"
+                      value={loginCredentials.username}
+                      onChange={(e) =>
+                        setLoginCredentials({
+                          ...loginCredentials,
+                          username: e.target.value,
+                        })
+                      }
+                      className="w-full bg-gray-800 border border-green-600 text-green-400 px-3 py-2 rounded focus:outline-none focus:border-green-400 font-mono"
+                      placeholder="Enter username"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-green-300 text-sm font-bold mb-2">
+                      PASSWORD:
+                    </label>
+                    <input
+                      type="password"
+                      value={loginCredentials.password}
+                      onChange={(e) =>
+                        setLoginCredentials({
+                          ...loginCredentials,
+                          password: e.target.value,
+                        })
+                      }
+                      className="w-full bg-gray-800 border border-green-600 text-green-400 px-3 py-2 rounded focus:outline-none focus:border-green-400 font-mono"
+                      placeholder="Enter password"
+                      required
+                    />
+                  </div>
+
+                  {error && (
+                    <div className="bg-red-900 border border-red-600 text-red-300 px-3 py-2 rounded text-sm">
+                      <span className="text-red-400 font-bold">ERROR: </span>
+                      {error}
+                    </div>
+                  )}
+
+                  <div className="flex space-x-3 mt-6">
+                    <button
+                      type="button"
+                      onClick={closeLoginModal}
+                      className="flex-1 bg-gray-800 text-green-400 px-4 py-2 rounded border border-green-600 hover:bg-gray-700 transition-colors duration-200 text-sm font-bold"
+                    >
+                      CANCEL
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loginLoading}
+                      className="flex-1 bg-green-600 text-black px-4 py-2 rounded hover:bg-green-700 transition-colors duration-200 text-sm font-bold disabled:opacity-50"
+                    >
+                      {loginLoading ? (
+                        <div className="flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black mr-2"></div>
+                          AUTHENTICATING...
+                        </div>
+                      ) : (
+                        "LOGIN"
+                      )}
+                    </button>
+                  </div>
+                </form>
+
+                <div className="mt-4 text-center text-green-600 text-xs">
+                  // SECURE CONNECTION ESTABLISHED
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -361,45 +540,60 @@ export default function Home() {
                 </div>
 
                 <div className="space-y-6">
-                  {Object.entries(allocationData).map(([department, resources]) => (
-                    <div key={department} className="bg-gray-800 border border-green-700 rounded-lg p-4">
-                      <h3 className="text-lg font-bold text-green-300 mb-4 flex items-center">
-                        <span className="text-green-600 mr-2">{">"}</span>
-                        {department.toUpperCase()}
-                      </h3>
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                        {Object.entries(resources).map(([resourceType, quantity]) => (
-                          <div
-                            key={resourceType}
-                            className={`bg-gray-700 border rounded p-3 text-center ${
-                              quantity > 0 
-                                ? 'border-green-600 bg-green-900 bg-opacity-20' 
-                                : 'border-gray-600'
-                            }`}
-                          >
-                            <div className="text-2xl mb-1">
-                              {getResourceIcon(resourceType)}
-                            </div>
-                            <div className="text-sm text-green-300 mb-1">
-                              {formatResourceName(resourceType)}
-                            </div>
-                            <div className={`text-lg font-bold ${
-                              quantity > 0 ? 'text-green-400' : 'text-gray-400'
-                            }`}>
-                              {quantity}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                  {Object.entries(allocationData).map(
+                    ([department, resources]) => (
+                      <div
+                        key={department}
+                        className="bg-gray-800 border border-green-700 rounded-lg p-4"
+                      >
+                        <h3 className="text-lg font-bold text-green-300 mb-4 flex items-center">
+                          <span className="text-green-600 mr-2">{">"}</span>
+                          {department.toUpperCase()}
+                        </h3>
 
-                      {/* Summary for each department */}
-                      <div className="mt-3 text-sm text-green-300">
-                        <span className="text-green-600">// </span>
-                        Total Resources: {Object.values(resources).reduce((sum, qty) => sum + qty, 0)}
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                          {Object.entries(resources).map(
+                            ([resourceType, quantity]) => (
+                              <div
+                                key={resourceType}
+                                className={`bg-gray-700 border rounded p-3 text-center ${
+                                  quantity > 0
+                                    ? "border-green-600 bg-green-900 bg-opacity-20"
+                                    : "border-gray-600"
+                                }`}
+                              >
+                                <div className="text-2xl mb-1">
+                                  {getResourceIcon(resourceType)}
+                                </div>
+                                <div className="text-sm text-green-300 mb-1">
+                                  {formatResourceName(resourceType)}
+                                </div>
+                                <div
+                                  className={`text-lg font-bold ${
+                                    quantity > 0
+                                      ? "text-green-400"
+                                      : "text-gray-400"
+                                  }`}
+                                >
+                                  {quantity}
+                                </div>
+                              </div>
+                            )
+                          )}
+                        </div>
+
+                        {/* Summary for each department */}
+                        <div className="mt-3 text-sm text-green-300">
+                          <span className="text-green-600">// </span>
+                          Total Resources:{" "}
+                          {Object.values(resources).reduce(
+                            (sum, qty) => sum + qty,
+                            0
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
 
                 {/* Overall Summary */}
@@ -414,11 +608,17 @@ export default function Home() {
                     </div>
                     <div className="text-green-300">
                       <span className="text-green-600">Total Personnel: </span>
-                      {Object.values(allocationData).reduce((sum, dept) => sum + dept.rescuePersonnel, 0)}
+                      {Object.values(allocationData).reduce(
+                        (sum, dept) => sum + dept.rescuePersonnel,
+                        0
+                      )}
                     </div>
                     <div className="text-green-300">
                       <span className="text-green-600">Medical Supplies: </span>
-                      {Object.values(allocationData).reduce((sum, dept) => sum + dept.medical, 0)}
+                      {Object.values(allocationData).reduce(
+                        (sum, dept) => sum + dept.medical,
+                        0
+                      )}
                     </div>
                     <div className="text-green-300">
                       <span className="text-green-600">Timestamp: </span>
