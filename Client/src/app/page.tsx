@@ -121,6 +121,8 @@ export default function Home() {
     } catch (error) {
       console.error("Error allocating resources:", error);
       setError("Failed to allocate resources");
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      setError(null);
     } finally {
       setAllocationLoading(false);
     }
@@ -151,7 +153,7 @@ export default function Home() {
         const data = await response.json();
         const departmentUserId = data.depId[0].depId;
 
-        // Store both userId and departmentId
+        // Store authentication data
         localStorage.setItem("departmentUserId", loginCredentials.username);
         localStorage.setItem("departmentId", departmentUserId.toString());
 

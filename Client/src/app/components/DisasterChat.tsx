@@ -113,11 +113,27 @@ const DisasterChat: React.FC<DisasterChatProps> = ({
   };
 
   const handleHomeNavigation = () => {
+    // Clear authentication data
+    localStorage.removeItem('departmentUserId');
+    localStorage.removeItem('departmentId');
+    localStorage.removeItem('loginCredentials');
+    
+    // Navigate to home
     router.push('/');
   };
 
+  const handleLogout = () => {
+    const confirmLogout = window.confirm(
+      "Are you sure you want to logout? This will end your chat session."
+    );
+    
+    if (confirmLogout) {
+      handleHomeNavigation();
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-black font-mono text-green-400 flex">
+    <div className="min-h-screen max-h-screen bg-black font-mono text-green-400 flex">
       {/* Members Sidebar */}
       <div className="w-80 bg-gray-900 border-r border-green-600 p-4">
         <div className="mb-6">
@@ -183,25 +199,49 @@ const DisasterChat: React.FC<DisasterChatProps> = ({
               </div>
             </div>
             
-            <button
-              onClick={handleHomeNavigation}
-              className="inline-flex items-center px-4 py-2 border border-green-600 text-sm font-bold rounded bg-gray-800 text-green-400 hover:bg-green-600 hover:text-black focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors duration-200"
-            >
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="flex space-x-3">
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center px-4 py-2 border border-red-600 text-sm font-bold rounded bg-gray-800 text-red-400 hover:bg-red-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors duration-200"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                />
-              </svg>
-              HOME
-            </button>
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
+                </svg>
+                LOGOUT
+              </button>
+
+              {/* Home Button */}
+              <button
+                onClick={handleHomeNavigation}
+                className="inline-flex items-center px-4 py-2 border border-green-600 text-sm font-bold rounded bg-gray-800 text-green-400 hover:bg-green-600 hover:text-black focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors duration-200"
+              >
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                  />
+                </svg>
+                HOME
+              </button>
+            </div>
           </div>
         </div>
 
