@@ -10,10 +10,10 @@ export async function GET(
   try {
     await dbConnect();
     const { disasterId } = await params; // Add await here
-    
-    const members = await DisasterMember.find({ 
-      disasterId, 
-      isActive: true 
+
+    const members = await DisasterMember.find({
+      disasterId,
+      isActive: true,
     }).lean();
 
     return NextResponse.json({ members }, { status: 200 });

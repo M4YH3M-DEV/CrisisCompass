@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 interface Message {
   _id: string;
@@ -29,11 +29,11 @@ interface DisasterChatProps {
 const DisasterChat: React.FC<DisasterChatProps> = ({
   disasterId,
   departmentUserId,
-  departmentId
+  departmentId,
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -47,7 +47,7 @@ const DisasterChat: React.FC<DisasterChatProps> = ({
         setMessages(data.messages);
       }
     } catch (error) {
-      console.error('Error fetching messages:', error);
+      console.error("Error fetching messages:", error);
     }
   };
 
@@ -60,7 +60,7 @@ const DisasterChat: React.FC<DisasterChatProps> = ({
         setMembers(data.members);
       }
     } catch (error) {
-      console.error('Error fetching members:', error);
+      console.error("Error fetching members:", error);
     }
   };
 
@@ -78,7 +78,7 @@ const DisasterChat: React.FC<DisasterChatProps> = ({
   }, [disasterId]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const sendMessage = async (e: React.FormEvent) => {
@@ -88,9 +88,9 @@ const DisasterChat: React.FC<DisasterChatProps> = ({
     setLoading(true);
     try {
       const response = await fetch(`/api/chat/${disasterId}/messages`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           text: newMessage.trim(),
@@ -100,13 +100,13 @@ const DisasterChat: React.FC<DisasterChatProps> = ({
       });
 
       if (response.ok) {
-        setNewMessage('');
+        setNewMessage("");
         fetchMessages(); // Refresh messages
       } else {
-        console.error('Failed to send message');
+        console.error("Failed to send message");
       }
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error("Error sending message:", error);
     } finally {
       setLoading(false);
     }
@@ -114,19 +114,19 @@ const DisasterChat: React.FC<DisasterChatProps> = ({
 
   const handleHomeNavigation = () => {
     // Clear authentication data
-    localStorage.removeItem('departmentUserId');
-    localStorage.removeItem('departmentId');
-    localStorage.removeItem('loginCredentials');
-    
+    localStorage.removeItem("departmentUserId");
+    localStorage.removeItem("departmentId");
+    localStorage.removeItem("loginCredentials");
+
     // Navigate to home
-    router.push('/');
+    router.push("/");
   };
 
   const handleLogout = () => {
     const confirmLogout = window.confirm(
       "Are you sure you want to logout? This will end your chat session."
     );
-    
+
     if (confirmLogout) {
       handleHomeNavigation();
     }
@@ -144,15 +144,15 @@ const DisasterChat: React.FC<DisasterChatProps> = ({
             // Connected departments: {members.length}
           </div>
         </div>
-        
+
         <div className="space-y-3">
           {members.map((member) => (
             <div
               key={member._id}
               className={`border rounded p-3 text-sm transition-colors duration-200 ${
                 member.userId === departmentUserId
-                  ? 'bg-green-900 bg-opacity-30 border-green-400 text-green-300'
-                  : 'bg-gray-800 border-green-700 text-green-400 hover:border-green-500'
+                  ? "bg-green-900 bg-opacity-30 border-green-400 text-green-300"
+                  : "bg-gray-800 border-green-700 text-green-400 hover:border-green-500"
               }`}
             >
               <div className="font-bold text-green-300 mb-1">
@@ -198,7 +198,7 @@ const DisasterChat: React.FC<DisasterChatProps> = ({
                 // LOGGED_AS: DEPT_{departmentId}
               </div>
             </div>
-            
+
             <div className="flex space-x-3">
               {/* Logout Button */}
               <button
@@ -250,22 +250,26 @@ const DisasterChat: React.FC<DisasterChatProps> = ({
           {messages.length === 0 && (
             <div className="text-center text-green-600 mt-8">
               <div className="text-lg mb-2">{">"} Chat initialized</div>
-              <div className="text-sm">// No messages yet. Start the conversation.</div>
+              <div className="text-sm">
+                // No messages yet. Start the conversation.
+              </div>
             </div>
           )}
-          
+
           {messages.map((message) => (
             <div
               key={message._id}
               className={`flex ${
-                message.userId === departmentUserId ? 'justify-end' : 'justify-start'
+                message.userId === departmentUserId
+                  ? "justify-end"
+                  : "justify-start"
               }`}
             >
               <div
                 className={`max-w-xs lg:max-w-md px-4 py-3 rounded border transition-colors duration-200 ${
                   message.userId === departmentUserId
-                    ? 'bg-green-900 bg-opacity-30 border-green-500 text-green-300'
-                    : 'bg-gray-900 border-green-700 text-green-400'
+                    ? "bg-green-900 bg-opacity-30 border-green-500 text-green-300"
+                    : "bg-gray-900 border-green-700 text-green-400"
                 }`}
               >
                 <div className="text-xs text-green-600 mb-2 font-mono">
@@ -289,9 +293,7 @@ const DisasterChat: React.FC<DisasterChatProps> = ({
         {/* Message Input */}
         <div className="bg-gray-900 border-t border-green-600 p-4">
           <form onSubmit={sendMessage} className="space-y-3">
-            <div className="text-green-300 text-sm">
-              {">"} COMPOSE_MESSAGE:
-            </div>
+            <div className="text-green-300 text-sm">{">"} COMPOSE_MESSAGE:</div>
             <div className="flex space-x-3">
               <input
                 type="text"
@@ -313,7 +315,7 @@ const DisasterChat: React.FC<DisasterChatProps> = ({
                     SEND
                   </div>
                 ) : (
-                  'SEND'
+                  "SEND"
                 )}
               </button>
             </div>
@@ -326,8 +328,8 @@ const DisasterChat: React.FC<DisasterChatProps> = ({
         {/* Status Bar */}
         <div className="bg-gray-800 border-t border-green-700 px-4 py-2">
           <div className="text-green-600 text-xs font-mono">
-            // STATUS: ONLINE | MEMBERS: {members.length} | MESSAGES: {messages.length} | 
-            LAST_UPDATE: {new Date().toLocaleTimeString()}
+            // STATUS: ONLINE | MEMBERS: {members.length} | MESSAGES:{" "}
+            {messages.length} | LAST_UPDATE: {new Date().toLocaleTimeString()}
           </div>
         </div>
       </div>

@@ -12,7 +12,7 @@ export async function GET(
   try {
     await dbConnect();
     const { disasterId } = await params;
-    
+
     const messages = await ChatMessage.find({ disasterId })
       .sort({ timestamp: 1 })
       .limit(100)
@@ -39,11 +39,11 @@ export async function POST(
     const { text, userId, departmentId } = await req.json();
 
     // Validate department exists
-    const department = await Departments.findOne({ 
-      userId, 
-      depId: departmentId 
+    const department = await Departments.findOne({
+      userId,
+      depId: departmentId,
     });
-    
+
     if (!department) {
       return NextResponse.json(
         { error: "Invalid department credentials" },

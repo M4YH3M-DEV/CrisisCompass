@@ -27,5 +27,5 @@ export async function POST(req: NextRequest) {
     }
   );
 
-  return NextResponse.json({data: resourceData}, { status: 200 });
+  return NextResponse.json({ data: resourceData }, { status: 200 });
 }

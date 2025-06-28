@@ -26,12 +26,12 @@ const SaveDisasterSchema = new mongoose.Schema(
       required: [true, "Disaster name is required"],
     },
     activeStatus: {
-        type: String,
-        required: [true, "Active status required"],
+      type: String,
+      required: [true, "Active status required"],
     },
     severity: {
-        type: String,
-        required: [true, "Severity is required"],
+      type: String,
+      required: [true, "Severity is required"],
     },
     foodHave: {
       type: Number,

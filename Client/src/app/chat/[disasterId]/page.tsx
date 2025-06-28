@@ -1,16 +1,16 @@
 "use client";
 
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import DisasterChat from '../../components/DisasterChat';
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import DisasterChat from "@/components/DisasterChat";
 
 const ChatPage = () => {
   const params = useParams();
   const router = useRouter();
-  
+
   const disasterId = params.disasterId as string;
-  
-  const [departmentUserId, setDepartmentUserId] = useState<string>('');
+
+  const [departmentUserId, setDepartmentUserId] = useState<string>("");
   const [departmentId, setDepartmentId] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -18,16 +18,16 @@ const ChatPage = () => {
   useEffect(() => {
     // Check authentication on component mount
     const checkAuth = () => {
-      const depUserId = localStorage.getItem('departmentUserId');
-      const depId = localStorage.getItem('departmentId');
-      
+      const depUserId = localStorage.getItem("departmentUserId");
+      const depId = localStorage.getItem("departmentId");
+
       if (!depUserId || !depId) {
         // No credentials found, redirect to home
         setIsAuthenticated(false);
         setLoading(false);
         return;
       }
-      
+
       // Valid credentials found
       setDepartmentUserId(depUserId);
       setDepartmentId(parseInt(depId));
@@ -66,7 +66,7 @@ const ChatPage = () => {
             ERROR: Invalid or missing credentials
           </div>
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push("/")}
             className="bg-green-600 text-black px-6 py-2 rounded font-bold hover:bg-green-700 transition-colors duration-200"
           >
             RETURN_HOME
