@@ -69,7 +69,9 @@ Special thanks to the amazing team behind CrisisCompass:
 👨‍💻 [BIGBEASTISHANK (Pranjal)](https://bigbeastishank.com/) — Full-stack Development & ML Integration
 
 ✍️ [Aarav](https://github.com/ShootingFlame) — Content Formation & Structuring
- 
+
+ 🎨 [Devguru Pandey](http://github.com/DevguruPandey) — Presentation & Visual Design
+
 ---
  
 > CrisisCompass — Making every second count in disaster response.
