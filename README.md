@@ -67,6 +67,8 @@ Special thanks to the amazing team behind CrisisCompass:
 💡 [HB Singh Chaudhary](https://github.com/M4YH3M-DEV/) — Ideation & Concept, Project Moderation
  
 👨‍💻 [BIGBEASTISHANK (Pranjal)](https://bigbeastishank.com/) — Full-stack Development & ML Integration
+
+✍️ [Aarav](https://github.com/ShootingFlame) — Content Formation & Structuring
  
 ---
  
