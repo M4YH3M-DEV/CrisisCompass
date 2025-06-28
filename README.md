@@ -52,7 +52,7 @@ One of the biggest hurdles during disaster response is siloed communication betw
  
 ### Backend
 - **Flask (Python)**: Handles ML model and core logic
-- **Next.js API routes**: Handles certain client interactions and routes
+- **Node.js**: Handles certain client interactions and routes
 - **MongoDB**: Stores disaster events, chat messages, resource data, and department info
  
 ### Machine Learning
