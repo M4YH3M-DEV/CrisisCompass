@@ -3,8 +3,7 @@
 **AI-Powered Disaster Response Coordination System**
  
 CrisisCompass is an intelligent disaster management platform that empowers agencies to respond swiftly and collaboratively to crises like earthquakes. It combines machine learning, smart resource planning, and centralized communication to transform disaster response from chaotic to coordinated.
- 
-> 🏆 Built for the [Pixel Palettes Hackathon](https://www.ieeerasmuj.com/pixelpalettes/) by IEEE RAS MUJ.
+
  
 ---
  
@@ -68,10 +67,6 @@ Special thanks to the amazing team behind CrisisCompass:
 💡 [HB Singh Chaudhary](https://github.com/M4YH3M-DEV/) — Ideation & Concept, Project Moderation
  
 👨‍💻 [BIGBEASTISHANK (Pranjal)](https://bigbeastishank.com/) — Full-stack Development & ML Integration
-
-✍️ [Aarav](https://github.com/ShootingFlame) — Content Formation & Structuring
-
- 🎨 [Devguru Pandey](http://github.com/DevguruPandey) — Presentation & Visual Design
 
 ---
  
